@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#0d1b3e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Minhas Contas">
+<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1pbmhhcyBDb250YXMiLAogICJzaG9ydF9uYW1lIjogIkNvbnRhcyIsCiAgImRlc2NyaXB0aW9uIjogIkRhc2hib2FyZCBGaW5hbmNlaXJvIFBlc3NvYWwiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBkMWIzZSIsCiAgInRoZW1lX2NvbG9yIjogIiMwZDFiM2UiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdC1wcmltYXJ5IiwKICAiaWNvbnMiOiBbCiAgICB7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxOTIgMTkyJz48cmVjdCB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgcng9JzQwJyBmaWxsPSclMjMwZDFiM2UnLz48dGV4dCB5PScxMzAnIHg9Jzk2JyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmb250LXNpemU9JzExMCc+8J+SsDwvdGV4dD48L3N2Zz4iLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwifSwKICAgIHsic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDUxMiA1MTInPjxyZWN0IHdpZHRoPSc1MTInIGhlaWdodD0nNTEyJyByeD0nMTAwJyBmaWxsPSclMjMwZDFiM2UnLz48dGV4dCB5PSczNjAnIHg9JzI1NicgdGV4dC1hbmNob3I9J21pZGRsZScgZm9udC1zaXplPSczMDAnPvCfkrA8L3RleHQ+PC9zdmc+IiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIn0KICBdCn0=">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard Financeiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+
+
+</head>
+<body>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sb-overlay" id="sbOverlay" onclick="fecharSidebar()"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mob-nav" id="mobNav">
+  <button class="mob-nav-btn on" id="mnav-dash" onclick="mobNav('dash')">
+    <span class="mni">📊</span><span class="mnl">Início</span>
+  </button>
+  <button class="mob-nav-btn" id="mnav-anual" onclick="mobNav('anual')">
+    <span class="mni">📅</span><span class="mnl">Anual</span>
+  </button>
+  <button class="mob-nav-fab" onclick="abrirModal()" title="Nova Transação" aria-label="Adicionar transação">＋</button>
+  <button class="mob-nav-btn" id="mnav-mensal" onclick="mobNav('mensal')">
+    <span class="mni">📆</span><span class="mnl">Mensal</span>
+  </button>
+  <button class="mob-nav-btn" id="mnav-menu" onclick="abrirSidebar()">
+    <span class="mni">☰</span><span class="mnl">Menu</span>
+  </button>
+</nav>
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Carregando&hellip;</div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sb" id="sidebar">
+  <div class="gear-dropdown" id="gearDropdown">
+    <button class="gear-dd-item" onclick="abrirBancosModal()"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gerenciar Cartões</button>
+  </div>
+  
+  <div class="sb-top">
+    <div class="sb-top-row">
+      <button class="sb-gear-btn" id="gearBtn" onclick="toggleGearMenu(event)" title="Configurações">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
+      <div class="sb-logo">
+        <div class="lic">💰</div>
+        <div><h2>Minhas Contas</h2><p>Dashboard Financeiro</p></div>
+      </div>
+    </div>
+  </div>
+  
+  <nav class="sb-nav">
+    <div class="sb-sec">Principal</div>
+    <button class="sb-btn on" id="nav-dash" onclick="setView('dash')"><i>📊</i>Dashboard</button>
+    <button class="sb-btn" id="nav-anual" onclick="setView('anual')"><i>📅</i>Visão Anual</button>
+    <button class="sb-btn" id="nav-mensal" onclick="setView('mensal')"><i>📆</i>Visão Mensal</button>
+    
+    <div class="sb-sec">Bancos</div>
+    <div id="sbBancosButtons"></div>
+    <button class="sb-btn" id="sb-gerenciar" onclick="abrirBancosModal()"><i>⚙️</i>Gerenciar Cartões</button>
+    
+    <div class="sb-sec">Filtros</div>
+    <button class="sb-btn" id="sf-todos" onclick="setFiltro('')"><i>📋</i>Todas as Contas</button>
+    <button class="sb-btn" id="sf-vencida" onclick="setFiltro('vencida')"><i>⚠️</i>Vencidas</button>
+    <button class="sb-btn" id="sf-avencer" onclick="setFiltro('avencer')"><i>⏳</i>A Vencer</button>
+    <button class="sb-btn" id="sf-pago" onclick="setFiltro('pago')"><i>✅</i>Pagas</button>
+    
+    <div class="sb-sec">Período</div>
+    <select class="sb-mes" id="sbMes" onchange="render()">
+      <option value="">Todos os meses</option>
+    </select>
+  </nav>
+  
+  <div class="sb-foot"><p id="sbData">—</p></div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;min-width:0;gap:10px;">
+      <button class="mob-menu-btn" id="mobMenuBtn" onclick="abrirSidebar()" style="display:none;background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer;padding:4px 6px;border-radius:8px;line-height:1;">☰</button>
+      <h3 id="topbarTitle">Dashboard</h3>
+      <span class="topbar-sub" id="topbarSub">Visão geral das suas finanças</span>
+    </div>
+    <div class="topbar-r">
+      <span class="tdate" id="topDate">—</span>
+      <button id="btnTema" title="Alternar tema">🌙</button>
+      <button class="btn-new" onclick="abrirModal()">+ Nova Transação</button>
+    </div>
+  </div>
+  
+  <div class="content">
+    <div id="view-dash">
+      <div class="bank-row">
+        <div id="bcardsDynamic" style="display:flex;gap:18px;flex-wrap:wrap;"></div>
+      </div>
+      
+      <div class="metrics" style="grid-template-columns:repeat(5,1fr)">
+        <div class="mc g">
+          <div class="ic g">💰</div>
+          <div class="mc-lbl">Saldo Atual</div>
+          <div class="mc-val" id="mSaldo">R$ 0,00</div>
+          <div><span class="tag bl" id="mSaldoTag">—</span></div>
+        </div>
+        <div class="mc g">
+          <div class="ic g">📈</div>
+          <div class="mc-lbl">Total Receitas</div>
+          <div class="mc-val" id="mRec" style="color:var(--grn)">R$ 0,00</div>
+          <div><span class="tag up" id="mRecN">0 lançamentos</span></div>
+        </div>
+        <div class="mc r">
+          <div class="ic r">📉</div>
+          <div class="mc-lbl">Total Despesas</div>
+          <div class="mc-val" id="mDes" style="color:var(--red)">R$ 0,00</div>
+          <div><span class="tag dn" id="mDesN">0 lançamentos</span></div>
+        </div>
+        <div class="mc" style="border-bottom:3px solid var(--pur,#8b5cf6)">
+          <div class="ic" style="position:absolute;right:14px;top:14px;background:rgba(139,92,246,.12)">💸</div>
+          <div class="mc-lbl">Despesas Pagas</div>
+          <div class="mc-val" id="mDesPago" style="color:#a78bfa">R$ 0,00</div>
+          <div><span class="tag" id="mDesRestoTag" style="background:rgba(239,68,68,.12);color:var(--red)">R$ 0,00 pendente</span></div>
+        </div>
+        <div class="mc y">
+          <div class="ic y">⚠️</div>
+          <div class="mc-lbl">Contas Vencidas</div>
+          <div class="mc-val" id="mVen" style="color:var(--red)">0</div>
+          <div><span class="tag yl" id="mAvcTag">0 a vencer</span></div>
+        </div>
+      </div>
+      
+      <div class="mid">
+        <div class="ccard">
+          <div class="ch">
+            <div><h4>Fluxo de Caixa</h4><div class="csub">Receitas e despesas mensais</div></div>
+            <div class="pills">
+              <span class="pill on" onclick="setCF(this,'todos')">Todos</span>
+              <span class="pill" onclick="setCF(this,'6m')">6 meses</span>
+              <span class="pill" onclick="setCF(this,'3m')">3 meses</span>
+            </div>
+          </div>
+          <div class="cwrap h230"><canvas id="gFluxo"></canvas></div>
+          <div class="leg">
+            <div class="li"><div class="ld" style="background:var(--grn)"></div>Receitas</div>
+            <div class="li"><div class="ld" style="background:var(--red)"></div>Despesas</div>
+            <div class="li"><div class="ld" style="background:var(--blu)"></div>Saldo</div>
+          </div>
+        </div>
+        <div class="st-stack">
+          <div class="stc" onclick="setFiltro('vencida')">
+            <div class="si" style="background:var(--red-l)">⚠️</div>
+            <div class="stc-info"><p>Vencidas</p><strong id="stVenV" style="color:var(--red)">R$ 0,00</strong></div>
+            <span class="stc-n" id="stVenN" style="background:var(--red-l);color:var(--red)">0</span>
+          </div>
+          <div class="stc" onclick="setFiltro('avencer')">
+            <div class="si" style="background:var(--ylw-l)">⏳</div>
+            <div class="stc-info"><p>A Vencer</p><strong id="stAvcV" style="color:var(--ylw)">R$ 0,00</strong></div>
+            <span class="stc-n" id="stAvcN" style="background:var(--ylw-l);color:var(--ylw)">0</span>
+          </div>
+          <div class="stc" onclick="setFiltro('pago')">
+            <div class="si" style="background:var(--grn-l)">✅</div>
+            <div class="stc-info"><p>Pagas</p><strong id="stPagV" style="color:var(--grn)">R$ 0,00</strong></div>
+            <span class="stc-n" id="stPagN" style="background:var(--grn-l);color:var(--grn)">0</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bot">
+        <div class="ccard" style="grid-column:span 2">
+          <div class="ch" style="margin-bottom:12px">
+            <div><h4>Lançamentos</h4><div class="csub" id="txCount">0 registros</div></div>
+            <div class="pills">
+              <span class="pill on" id="fp-" onclick="setPill(this,'')">Todos</span>
+              <span class="pill" id="fp-vencida" onclick="setPill(this,'vencida')">Vencidas</span>
+              <span class="pill" id="fp-avencer" onclick="setPill(this,'avencer')">A vencer</span>
+              <span class="pill" id="fp-pago" onclick="setPill(this,'pago')">Pagas</span>
+            </div>
+          </div>
+          <div class="bulk-bar" id="bulkBar">
+            <span class="bulk-info" id="bulkInfo">0 selecionadas</span>
+            <button class="bulk-cancel" onclick="limparSel()">✕ Cancelar seleção</button>
+            <button class="bulk-del" onclick="excluirSelecionadas()">🗑 Excluir selecionadas</button>
+          </div>
+          <div class="tbl-scroll">
+            <table class="tx">
+              <thead><tr>
+                <th><input type="checkbox" class="tx-cb-th" id="cbTodos" onclick="toggleTodos(this)"></th>
+                <th></th><th>Descrição</th><th>Categoria</th><th>Banco</th><th>Data</th><th>Valor</th><th>Status</th><th></th>
+              </tr></thead>
+              <tbody id="txBody"><tr class="empty-r"><td colspan="9">Clique em "+ Nova Transação" para começar.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="ccard">
+          <div class="ch" style="margin-bottom:14px">
+            <div><h4>Por Categoria</h4><div class="csub">Distribuição de despesas</div></div>
+          </div>
+          <div class="cwrap h185" style="position:relative">
+            <canvas id="gCat"></canvas>
+            <div class="dc"><strong id="dcVal">—</strong><span>despesas</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-anual" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+        <div>
+          <h3 style="font-size:1rem;font-weight:800">📅 Visão Anual</h3>
+          <p style="font-size:.72rem;color:var(--mut);margin-top:3px">Resumo mês a mês — clique num mês para filtrar o dashboard</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="anual-yr-btn" onclick="mudaAno(-1)">‹</button>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;min-width:44px;text-align:center" id="anoLabel">2025</span>
+          <button class="anual-yr-btn" onclick="mudaAno(1)">›</button>
+        </div>
+      </div>
+      <div class="anual-grid" id="anualGrid"></div>
+      <div class="ccard" style="margin-top:18px">
+        <div class="ch"><div><h4>Evolução do Ano</h4><div class="csub" id="anualSub">Receitas e despesas mensais</div></div></div>
+        <div class="cwrap" style="height:220px"><canvas id="gAnual"></canvas></div>
+        <div class="leg" style="margin-top:10px">
+          <div class="li"><div class="ld" style="background:var(--grn)"></div>Receitas</div>
+          <div class="li"><div class="ld" style="background:var(--red)"></div>Despesas</div>
+          <div class="li"><div class="ld" style="background:var(--blu)"></div>Saldo</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-mensal" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+        <div>
+          <h3 style="font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--acc)">📆 Visão Mensal</h3>
+          <p style="font-size:.68rem;color:var(--mut);margin-top:3px;text-transform:uppercase;letter-spacing:.8px;">Entradas e saídas por dia — <span id="mensal-titulo">—</span></p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="anual-yr-btn" onclick="mudaMes(-1)" id="btnMesAnterior">‹</button>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;min-width:120px;text-align:center;color:var(--acc)" id="mensalLabel">—</span>
+          <button class="anual-yr-btn" onclick="mudaMes(1)" id="btnMesProximo">›</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+        <div class="mc g" style="border-top:2px solid var(--acc)!important">
+          <div class="ic g" style="position:absolute;right:14px;top:14px;">💰</div>
+          <div class="mc-lbl">Saldo do Mês</div>
+          <div class="mc-val" id="vm-saldo">R$ 0,00</div>
+        </div>
+        <div class="mc g" style="border-top:2px solid var(--grn)!important">
+          <div class="ic" style="position:absolute;right:14px;top:14px;background:var(--grn-l)">📈</div>
+          <div class="mc-lbl">Total Receitas</div>
+          <div class="mc-val" style="color:var(--grn)" id="vm-rec">R$ 0,00</div>
+        </div>
+        <div class="mc r" style="border-top:2px solid var(--red)!important">
+          <div class="ic r" style="position:absolute;right:14px;top:14px;">📉</div>
+          <div class="mc-lbl">Total Despesas</div>
+          <div class="mc-val" style="color:var(--red)" id="vm-des">R$ 0,00</div>
+        </div>
+        <div class="mc" style="border-top:2px solid var(--mut)!important">
+          <div class="ic" style="position:absolute;right:14px;top:14px;background:rgba(107,114,128,.15)">📋</div>
+          <div class="mc-lbl">Transações</div>
+          <div class="mc-val" style="color:var(--txt)" id="vm-n">0</div>
+        </div>
+      </div>
+      <div class="ccard" style="margin-bottom:18px">
+        <div class="ch">
+          <div><h4>Fluxo Diário</h4><div class="csub">Entradas e saídas por dia do mês</div></div>
+          <div class="pills" id="mensalPills">
+            <span class="pill on" onclick="setMensalTipo(this,'ambos')">Ambos</span>
+            <span class="pill" onclick="setMensalTipo(this,'receita')">Receitas</span>
+            <span class="pill" onclick="setMensalTipo(this,'despesa')">Despesas</span>
+          </div>
+        </div>
+        <div style="height:280px;position:relative"><canvas id="gMensal"></canvas></div>
+        <div class="leg" style="margin-top:12px">
+          <div class="li"><div class="ld" style="background:var(--acc)"></div>Receitas</div>
+          <div class="li"><div class="ld" style="background:var(--red)"></div>Despesas</div>
+          <div class="li"><div class="ld" style="background:rgba(255,255,255,.2)"></div>Saldo acumulado</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div class="ccard">
+          <div class="ch"><div><h4>Por Semana</h4><div class="csub">Resumo semanal do mês</div></div></div>
+          <div id="semanaGrid" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
+        </div>
+        <div class="ccard">
+          <div class="ch"><div><h4>Top Dias</h4><div class="csub">Maiores movimentações</div></div></div>
+          <div id="topDiasGrid" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-vencida" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <button class="sv-back" onclick="setView('dash')">← Voltar</button>
+        <span style="font-size:.78rem;color:var(--mut)">Dashboard / Vencidas</span>
+      </div>
+      <div class="sv-header vencida">
+        <div class="sv-icon">⚠️</div>
+        <div>
+          <div class="sv-title" style="color:var(--red)">Contas Vencidas</div>
+          <div class="sv-sub">Despesas com prazo expirado e ainda não pagas</div>
+        </div>
+        <div class="sv-stats">
+          <div class="sv-total" id="sv-ven-total" style="color:var(--red)">R$ 0,00</div>
+          <div class="sv-count" id="sv-ven-count">0 contas</div>
+        </div>
+      </div>
+      <div class="ccard">
+        <div class="tbl-scroll">
+          <table class="tx">
+            <thead><tr>
+              <th><input type="checkbox" class="tx-cb-th" id="cbTodosVen" onclick="toggleTodosView('vencida',this)"></th>
+              <th></th><th>Descrição</th><th>Categoria</th><th>Banco</th><th>Data Venc.</th><th>Valor</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="txBodyVen"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-avencer" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <button class="sv-back" onclick="setView('dash')">← Voltar</button>
+        <span style="font-size:.78rem;color:var(--mut)">Dashboard / A Vencer</span>
+      </div>
+      <div class="sv-header avencer">
+        <div class="sv-icon">⏳</div>
+        <div>
+          <div class="sv-title" style="color:var(--ylw)">Contas a Vencer</div>
+          <div class="sv-sub">Despesas com prazo futuro ainda não pagas</div>
+        </div>
+        <div class="sv-stats">
+          <div class="sv-total" id="sv-avc-total" style="color:var(--ylw)">R$ 0,00</div>
+          <div class="sv-count" id="sv-avc-count">0 contas</div>
+        </div>
+      </div>
+      <div class="ccard">
+        <div class="tbl-scroll">
+          <table class="tx">
+            <thead><tr>
+              <th><input type="checkbox" class="tx-cb-th" id="cbTodosAvc" onclick="toggleTodosView('avencer',this)"></th>
+              <th></th><th>Descrição</th><th>Categoria</th><th>Banco</th><th>Data Venc.</th><th>Valor</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="txBodyAvc"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-pago" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <button class="sv-back" onclick="setView('dash')">← Voltar</button>
+        <span style="font-size:.78rem;color:var(--mut)">Dashboard / Pagas</span>
+      </div>
+      <div class="sv-header pago">
+        <div class="sv-icon">✅</div>
+        <div>
+          <div class="sv-title" style="color:var(--grn)">Contas Pagas</div>
+          <div class="sv-sub">Despesas já quitadas</div>
+        </div>
+        <div class="sv-stats">
+          <div class="sv-total" id="sv-pag-total" style="color:var(--grn)">R$ 0,00</div>
+          <div class="sv-count" id="sv-pag-count">0 contas</div>
+        </div>
+      </div>
+      <div class="ccard">
+        <div class="tbl-scroll">
+          <table class="tx">
+            <thead><tr>
+              <th><input type="checkbox" class="tx-cb-th" id="cbTodosPag" onclick="toggleTodosView('pago',this)"></th>
+              <th></th><th>Descrição</th><th>Categoria</th><th>Banco</th><th>Data Venc.</th><th>Valor</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="txBodyPag"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-banco-dinamico" style="display:none"></div>
+
+    <div id="view-todos" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <button class="sv-back" onclick="setView('dash')">← Dashboard</button>
+        <span style="font-size:.78rem;color:var(--mut)">Extrato / Todas as contas</span>
+      </div>
+      <div class="vt-section">
+        <div class="vt-sec-header vencida">
+          <span class="vt-ico">⚠️</span>
+          <span class="vt-tit" style="color:var(--red)">Vencidas</span>
+          <span class="vt-sum" id="vt-ven-soma" style="color:var(--red)">R$ 0,00</span>
+          <span class="vt-cnt" id="vt-ven-cnt">0 contas</span>
+        </div>
+        <div class="ccard">
+          <div class="tbl-scroll">
+            <table class="tx">
+              <thead><tr><th></th><th>Descrição</th><th>Categoria</th><th>Banco</th><th>Data Venc.</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+              <tbody id="vt-body-ven"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="vt-section">
+        <div class="vt-sec-header avencer">
+          <span class="vt-ico">⏳</span>
+          <span class="vt-tit" style="color:var(--ylw)">A Vencer</span>
+          <span class="vt-sum" id="vt-avc-soma" style="color:var(--ylw)">R$ 0,00</span>
+          <span class="vt-cnt" id="vt-avc-cnt">0 contas</span>
+        </div>
+        <div class="ccard">
+          <div class="tbl-scroll">
+            <table class="tx">
+              <thead><tr><th></th><th>Descrição</th><th>Categoria</th><th>Banco</th><th>Data Venc.</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+              <tbody id="vt-body-avc"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="vt-section">
+        <div class="vt-sec-header pago">
+          <span class="vt-ico">✅</span>
+          <span class="vt-tit" style="color:var(--grn)">Pagas</span>
+          <span class="vt-sum" id="vt-pag-soma" style="color:var(--grn)">R$ 0,00</span>
+          <span class="vt-cnt" id="vt-pag-cnt">0 contas</span>
+        </div>
+        <div class="ccard">
+          <div class="tbl-scroll">
+            <table class="tx">
+              <thead><tr><th></th><th>Descrição</th><th>Categoria</th><th>Banco</th><th>Data Venc.</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+              <tbody id="vt-body-pag"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="ovl" id="ovlDel">
+  <div class="modal" style="width:360px;text-align:center">
+    <div style="font-size:2.2rem;margin-bottom:12px;padding-top:20px">🗑️</div>
+    <h3 style="margin-bottom:8px;padding:0 24px">Excluir transação?</h3>
+    <p style="font-size:.8rem;color:var(--mut);margin-bottom:22px;padding:0 24px" id="delDesc">Esta ação não pode ser desfeita.</p>
+    <div class="m-btns" style="padding:0 24px 24px">
+      <button class="m-cancel" onclick="fecharDel()">Cancelar</button>
+      <button style="flex:2;padding:10px;border-radius:9px;border:none;background:linear-gradient(135deg,#ff4d6d,#ff8fa3);color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;font-size:.82rem;" id="btnConfDel">Sim, excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PAGAMENTO -->
+<div class="ovl" id="ovlPag" style="display:none">
+  <div class="modal" style="width:420px">
+    <div class="modal-header">
+      <span style="font-size:1.1rem">💳</span>
+      <h3>Pagar conta</h3>
+    </div>
+    <div class="modal-body">
+      <!-- Totals bar -->
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <div style="flex:1;background:var(--red-l);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:10px 12px">
+          <div style="font-size:.58rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Total da dívida</div>
+          <div id="pagTotalTxt" style="font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;color:var(--red)">R$ 0,00</div>
+        </div>
+        <div style="flex:1;background:var(--grn-l);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:10px 12px">
+          <div style="font-size:.58rem;color:var(--grn);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Já pago</div>
+          <div id="pagJaPagoTxt" style="font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;color:var(--grn)">R$ 0,00</div>
+        </div>
+        <div style="flex:1;background:var(--ylw-l);border:1px solid rgba(245,166,35,.25);border-radius:8px;padding:10px 12px">
+          <div style="font-size:.58rem;color:var(--ylw);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Restante</div>
+          <div id="pagRestanteTxt" style="font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;color:var(--ylw)">R$ 0,00</div>
+        </div>
+      </div>
+
+      <!-- Partial payment input -->
+      <div style="margin-bottom:14px">
+        <label style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(245,166,35,.6);display:block;margin-bottom:6px">Valor a pagar agora</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="pagValorInput" min="0.01" step="0.01" inputmode="decimal"
+            style="flex:1;background:var(--card2);border:1.5px solid var(--acc);color:var(--txt);border-radius:6px;padding:10px 13px;font-family:'JetBrains Mono',monospace;font-size:1rem;outline:none;font-weight:700"
+            oninput="atualizarValorPag()" placeholder="0,00">
+          <button onclick="pagValorMax()" style="padding:9px 12px;border-radius:6px;border:1.5px solid var(--bor);background:var(--card2);color:var(--mut);font-family:'Inter',sans-serif;font-size:.68rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s" onmouseover="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseout="this.style.borderColor='var(--bor)';this.style.color='var(--mut)'">Pagar tudo</button>
+        </div>
+        <div id="pagRestanteAviso" style="font-size:.68rem;color:var(--mut);margin-top:5px;display:none">
+          💡 Restará <span id="pagRestanteVal" style="color:var(--ylw);font-weight:700;font-family:'JetBrains Mono',monospace"></span> pendente após este pagamento.
+        </div>
+      </div>
+
+      <!-- Card list -->
+      <label style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(245,166,35,.6);display:block;margin-bottom:8px">Pagar com</label>
+      <div id="pagCartoesLista"></div>
+      <div class="pag-insuf" id="pagInsuf">⚠️ Saldo insuficiente no cartão selecionado.</div>
+      <div class="m-btns" style="margin-top:16px">
+        <button class="m-cancel" onclick="fecharPagModal()">Cancelar</button>
+        <button class="m-save" id="btnConfPag" onclick="confirmarPagamento()" style="opacity:.4;pointer-events:none">Confirmar pagamento</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA TRANSAÇÃO -->
+<div class="ovl" id="ovl">
+  <div class="modal">
+    <div class="modal-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--acc)"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      <h3>Nova Transação</h3>
+    </div>
+    <div class="modal-body">
+      <div class="t-row">
+        <button class="t-btn tr" id="mBR" onclick="setTipo('receita')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:5px;vertical-align:middle"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Receita
+        </button>
+        <button class="t-btn" id="mBD" onclick="setTipo('despesa')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:5px;vertical-align:middle"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>Despesa
+        </button>
+      </div>
+      <div class="bc-pick-lbl">Banco</div>
+      <div class="bc-pick-row" id="bcPickRow"></div>
+      <div class="fg"><label>Descrição</label><input type="text" id="fDesc" placeholder="Ex: Salário, Aluguel..." autocomplete="off"></div>
+      <div class="fg"><label>Valor (R$)</label><input type="number" id="fVal" placeholder="0,00" min="0.01" step="0.01" inputmode="decimal"></div>
+      <div class="fg" style="margin-bottom:4px"><label>Categoria</label></div>
+      <div class="cat-grid" id="catGrid">
+        <div class="cat-item sel" data-cat="moradia" onclick="selectCat(this,'moradia')" style="--cat-c:#7c6af7">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg></div>
+          <span class="cat-lbl">Moradia</span>
+        </div>
+        <div class="cat-item" data-cat="alimentacao" onclick="selectCat(this,'alimentacao')" style="--cat-c:#f5a623">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg></div>
+          <span class="cat-lbl">Alimentação</span>
+        </div>
+        <div class="cat-item" data-cat="transporte" onclick="selectCat(this,'transporte')" style="--cat-c:#3b82f6">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3M9 17h10l1-6H8l1 6zM9.5 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM18.5 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></div>
+          <span class="cat-lbl">Transporte</span>
+        </div>
+        <div class="cat-item" data-cat="saude" onclick="selectCat(this,'saude')" style="--cat-c:#ef4444">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <span class="cat-lbl">Saúde</span>
+        </div>
+        <div class="cat-item" data-cat="lazer" onclick="selectCat(this,'lazer')" style="--cat-c:#8b5cf6">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          <span class="cat-lbl">Lazer</span>
+        </div>
+        <div class="cat-item" data-cat="educacao" onclick="selectCat(this,'educacao')" style="--cat-c:#10b981">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+          <span class="cat-lbl">Educação</span>
+        </div>
+        <div class="cat-item" data-cat="trabalho" onclick="selectCat(this,'trabalho')" style="--cat-c:#06b6d4">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+          <span class="cat-lbl">Trabalho</span>
+        </div>
+        <div class="cat-item" data-cat="cartao" onclick="selectCat(this,'cartao')" style="--cat-c:#ec4899">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M21 4H3a2 2 0 00-2 2v12a2 2 0 002 2h18a2 2 0 002-2V6a2 2 0 00-2-2zM1 10h22"/></svg></div>
+          <span class="cat-lbl">Cartão</span>
+        </div>
+        <div class="cat-item" data-cat="outros" onclick="selectCat(this,'outros')" style="--cat-c:#94a3b8">
+          <div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <span class="cat-lbl">Outros</span>
+        </div>
+      </div>
+      <input type="hidden" id="fCat" value="moradia">
+      <div class="fg"><label>Data de Vencimento</label><input type="date" id="fData"></div>
+      <div class="m-btns">
+        <button class="m-cancel" onclick="fecharModal()">Cancelar</button>
+        <button class="m-save" id="btnSalvar">Salvar Transação</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GERENCIAR BANCOS -->
+<div id="bancosModal">
+  <div class="bancos-box">
+    <div class="bancos-header">
+      <h3>💳 Gerenciar Cartões</h3>
+      <button onclick="fecharBancosModal()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;">✕</button>
+    </div>
+    <div class="bancos-list" id="bancosListModal"></div>
+    <div class="bancos-footer">
+      <button style="padding:10px 24px;border-radius:9px;border:none;background:var(--acc);color:#0d0f13;font-family:'Inter',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;" onclick="fecharBancosModal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
